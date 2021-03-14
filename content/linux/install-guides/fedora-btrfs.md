@@ -213,6 +213,7 @@ sudo timeshift-gtk
      * Activate "Stop cron emails for scheduled tasks"
      * continue with "Next"
      * I also include the `@home` subvolume (which is not selected by default). Note that when you restore a snapshot, Timeshift will let you choose whether you want to restore `@home` as well (which in most cases you don't want to). But I find it most handy to have snapshots of both at hand.
+     * Deactivate "Enable BTRFS qgroups" (It would produce ERROR: can't list qgroups: quotas not enabled)
      * Click "Finish"
    * "Create" a manual first snapshot & exit Timeshift
 
@@ -260,7 +261,7 @@ GRUB is able to decrypt luks version 1 partitions at boot time, but by default v
 
 ```bash
 umount /boot
-cryptsetup luksFormat --type=luks1 /dev/vda2
+cryptsetup luksFormat --type=luks1 /dev/nvme0n1p2
 # WARNING!
 # ========
 # This will overwrite data on /dev/vda2 irrevocably.
@@ -271,7 +272,7 @@ cryptsetup luksFormat --type=luks1 /dev/vda2
 Now map the encrypted partition to a device called `crypt-boot` and choose a filesystem (e.g. ext4 or btrfs)
 
 ```bash
-cryptsetup luksOpen /dev/vda2 crypt-boot
+cryptsetup open /dev/vda2 crypt-boot
 # Enter passphrase for /dev/vda2:
 
 ls /dev/mapper/
