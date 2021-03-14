@@ -1,10 +1,10 @@
 ---
-title: Fedora Workstation 33 with btrfs-luks full disk encryption (optionally including /boot) and auto-dnf snapshots with Timeshift
-linktitle: Fedora 33 btrfs-luks
+title: Fedora Workstation 34 with btrfs-luks full disk encryption (optionally including /boot) and auto-dnf snapshots with Timeshift
+linktitle: Fedora 34 btrfs-luks
 toc: true
 type: book
-date: "2020-11-04T00:00:00+01:00"
-draft: false
+date: "2021-03-14T00:00:00+01:00"
+draft: yes
 
 # Prev/next pager order (if `docs_section_pager` enabled in `params.toml`)
 weight: 41
@@ -104,7 +104,7 @@ mv /btrfs_pool/home /btrfs_pool/@home
 btrfs subvolume list /btrfs_pool
 # ID 256 gen 345 top level 5 path @home
 # ID 258 gen 346 top level 5 path @
-# ID 265 gen 24 top level 258 path var/lib/machines
+# ID 265 gen 24 top level 258 path @/var/lib/machines
 ```
 
 ### Make changes to fstab with optimized mount options
@@ -117,14 +117,16 @@ We need to let fstab know that our subvolume names have changed to @ and @home. 
 - `compress=zstd`: allows to specify the compression algorithm which we want to use. btrfs provides lzo, zstd and zlib compression algorithms. Based on some Phoronix test cases, zstd seems to be the better performing candidate
 - `discard=async`: [Btrfs Async Discard Support Looks To Be Ready For Linux 5.6](https://www.phoronix.com/scan.php?page=news_item&px=Btrfs-Async-Discard)
 
-Let's make these changes with a text editor, e.g.:
+Let's backup and make these changes with a text editor, e.g.:
 ```bash
+cp /etc/fstab /etc/fstab_$(date -I)
 nano /etc/fstab
 ```
 or use these `sed` commands
 ```bash
-sed -i 's/subvol=root/subvol=@,ssd,noatime,space_cache,commit=120,compress=zstd,discard=async/' /etc/fstab
-sed -i 's/subvol=home/subvol=@home,ssd,noatime,space_cache,commit=120,compress=zstd,discard=async/' /etc/fstab
+sed -i_$(date -I) /etc/fstab \
+  -e 's/subvol=root/subvol=@,ssd,noatime,space_cache,commit=120,compress=zstd,discard=async/' \
+  -e 's/subvol=home/subvol=@home,ssd,noatime,space_cache,commit=120,compress=zstd,discard=async/'
 echo "UUID=$(blkid -s UUID -o value /dev/mapper/luks-6e7e8f26-4f38-468e-aa2c-9ddaaad4aedf)   /btrfs_pool   btrfs   subvolid=5,ssd,noatime,space_cache,commit=120,compress=zstd,discard=async,x-systemd.device-timeout=0   0 0" >> /etc/fstab
 ```
 
